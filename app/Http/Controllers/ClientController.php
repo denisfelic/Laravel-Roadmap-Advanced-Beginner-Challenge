@@ -4,6 +4,8 @@ namespace App\Http\Controllers;
 
 use App\Models\Client;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Gate;
 
 class ClientController extends Controller
 {
@@ -14,8 +16,12 @@ class ClientController extends Controller
      */
     public function index()
     {
+        if (!Gate::allows('access-clients')) {
+            abort(403);
+        }
+
         $clients = Client::all();
-        return view('clients_index', compact('clients'));
+        return view('client-page', compact('clients'));
     }
 
     /**
@@ -25,7 +31,9 @@ class ClientController extends Controller
      */
     public function create()
     {
-        //
+        if (!Gate::allows('access-clients', Auth::user())) {
+            abort(403);
+        }
     }
 
     /**
@@ -36,7 +44,20 @@ class ClientController extends Controller
      */
     public function store(Request $request)
     {
-        //
+        if (!Gate::allows('access-clients', Auth::user())) {
+            abort(403);
+        }
+
+        $request->validate([
+            'company_name' => 'required|string',
+            'VAT' => 'required|string',
+            'address' => 'required|string',
+        ]);
+
+        $createdClientData = Client::create($request->only('company_name', 'VAT', 'address'))
+            ->toArray();
+
+        return response($createdClientData, 201);
     }
 
     /**
@@ -58,7 +79,9 @@ class ClientController extends Controller
      */
     public function edit(Client $client)
     {
-        //
+        if (!Gate::allows('access-clients', Auth::user())) {
+            abort(403);
+        }
     }
 
     /**
@@ -70,7 +93,22 @@ class ClientController extends Controller
      */
     public function update(Request $request, Client $client)
     {
-        //
+        if (!Gate::allows('access-clients', Auth::user())) {
+            abort(403);
+        }
+
+        $request->validate([
+            "company_name" => 'required|string',
+            "VAT" => 'required|string',
+            "address" => 'required|string',
+        ]);
+
+        $client->company_name = $request->company_name;
+        $client->VAT = $request->VAT;
+        $client->address = $request->address;
+
+        $client->save();
+        return response($client->toArray(), 200);
     }
 
     /**
@@ -81,6 +119,13 @@ class ClientController extends Controller
      */
     public function destroy(Client $client)
     {
-        //
+
+        if (!Gate::allows('access-clients', Auth::user())) {
+            abort(403);
+        }
+
+        $clientData = $client->toArray();
+        $client->delete();
+        return response($clientData, 200);
     }
 }
