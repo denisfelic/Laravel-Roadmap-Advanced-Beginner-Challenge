@@ -7,10 +7,12 @@ use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Foundation\Testing\WithFaker;
 use Tests\TestCase;
 
+use function PHPUnit\Framework\assertEquals;
+
 class UserTest extends TestCase
 {
 
-    use RefreshDatabase;
+    // use RefreshDatabase;
 
     /**
      * @test
@@ -132,7 +134,98 @@ class UserTest extends TestCase
         $userAdmin->save();
 
 
-        $request = $this->actingAs($userAdmin)->withSession(['banned' => false])->get('/users/create')
+        $request = $this->actingAs($userAdmin)->withSession(['banned' => false])->get(route('users.create'))
             ->assertStatus(200);
+    }
+
+    /**
+     * @test
+     */
+    public function check_if_user_as_admin_can_access_user_edit_page_of_specific_user()
+    {
+        $anotherUser = User::factory()->create();
+
+        $userAdmin = User::factory()->create();
+        $userAdmin->role = 'admin';
+        $userAdmin->save();
+
+        $request = $this->actingAs($userAdmin)->withSession(['banned' => false])
+            ->get(route('users.edit', $anotherUser->id))
+            ->assertStatus(200);
+    }
+
+
+    /**
+     * @test
+     *
+     */
+    public function check_if_admin_user_can_change_user_role()
+    {
+        $userAdmin = User::factory()->create();
+        $userAdmin->role = 'admin';
+        // certify that user is an normal user
+        $anotherUser = User::factory()->create();
+        $anotherUser->role = '';
+        $anotherUser->save();
+
+        $request = $this->actingAs($userAdmin)->withSession(['banned' => false])
+            ->post(route('users.change_role'), [
+                "id" => $anotherUser->id,
+                "role" => "admin",
+
+            ])
+            ->assertStatus(200);
+
+        $anotherUser = User::find($anotherUser->id);
+        assertEquals('admin', $anotherUser->role);
+    }
+
+    /**
+     * @test
+     *
+     */
+    public function check_if_a_normal_user_cannot_change_user_role()
+    {
+        $normalUser = User::factory()->create();
+        $normalUser->role = '';
+        // certify that user is an normal user
+        $anotherUser = User::factory()->create();
+        $anotherUser->role = '';
+        $anotherUser->save();
+
+        $request = $this->actingAs($normalUser)->withSession(['banned' => false])
+            ->post(route('users.change_role'), [
+                "id" => $anotherUser->id,
+                "role" => "admin",
+
+            ])
+            ->assertStatus(403);
+
+        $anotherUser = User::find($anotherUser->id);
+        assertEquals('', $anotherUser->role);
+    }
+
+    /**
+     * @test
+     *
+     * @return void
+     */
+    public function check_if_a_unauthenticated_user_cannot_change_user_role()
+    {
+        // certify that user is an normal user
+        $anotherUser = User::factory()->create();
+        $anotherUser->role = '';
+        $anotherUser->save();
+
+        $request = $this->post(route('users.change_role'), [
+            "id" => $anotherUser->id,
+            "role" => "admin",
+
+        ])
+            ->assertRedirect(route('login'))
+            ->assertStatus(302);
+
+        $anotherUser = User::find($anotherUser->id);
+        assertEquals('', $anotherUser->role);
     }
 }

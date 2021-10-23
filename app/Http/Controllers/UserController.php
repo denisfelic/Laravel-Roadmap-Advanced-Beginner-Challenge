@@ -21,6 +21,26 @@ class UserController extends Controller
         }
     }
 
+    public function change_role(Request $request)
+    {
+        if (!Gate::allows('access-users', Auth::user())) {
+            abort(403);
+        }
+
+        $request->validate([
+            'id' => 'required|integer',
+            'role' => 'required|string',
+
+        ]);
+
+
+        $user = User::findOrFail($request->id);
+        $user->role = $request->role;
+        $user->save();
+
+        return response('', 200);
+    }
+
     /**
      * Show the form for creating a new resource.
      *
