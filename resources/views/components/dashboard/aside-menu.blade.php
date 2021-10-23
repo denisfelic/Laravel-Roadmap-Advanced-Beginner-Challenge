@@ -4,7 +4,7 @@
             <h1>CRM</h1>
         </li>
         <li class="w-full">
-            <x-dashboard.nav-link name="Dashboard">
+            <x-dashboard.nav-link route="{{ route('dashboard') }}" name="Dashboard">
                 <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"
                     xmlns="http://www.w3.org/2000/svg">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
@@ -14,7 +14,7 @@
             </x-dashboard.nav-link>
         </li>
         <li class="w-full">
-            <x-dashboard.nav-link name="users">
+            <x-dashboard.nav-link route="{{ route('users.index') }}" name="Users">
                 <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"
                     xmlns="http://www.w3.org/2000/svg">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
@@ -23,7 +23,7 @@
             </x-dashboard.nav-link>
         </li>
         <li class="w-full">
-            <x-dashboard.nav-link name="Clients">
+            <x-dashboard.nav-link route="{{ route('client.index') }}" name="Clients">
                 <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"
                     xmlns="http://www.w3.org/2000/svg">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
@@ -33,7 +33,7 @@
             </x-dashboard.nav-link>
         </li>
         <li class="w-full">
-            <x-dashboard.nav-link name="Projects">
+            <x-dashboard.nav-link route="#" name="Projects">
                 <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"
                     xmlns="http://www.w3.org/2000/svg">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
@@ -44,7 +44,7 @@
         </li>
 
         <li class="w-full">
-            <x-dashboard.nav-link name="Tasks">
+            <x-dashboard.nav-link route="#" name="Tasks">
                 <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"
                     xmlns="http://www.w3.org/2000/svg">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
