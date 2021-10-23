@@ -228,4 +228,16 @@ class UserTest extends TestCase
         $anotherUser = User::find($anotherUser->id);
         assertEquals('', $anotherUser->role);
     }
+
+
+    /**
+     * Undocumented function
+     *
+     * @return void
+     */
+    public function test_check_if_an_admin_cannot_change_role_of_another_user_admin()
+    {
+        //TODO
+        assertEquals(true, false);
+    }
 }
