@@ -23,6 +23,15 @@ class CreateProjectsTable extends Migration
             $table->string('status');
             $table->timestamp('deadline');
             $table->timestamps();
+
+            $table->foreign('creator_user_id')->references('id')->on('users')
+                ->onDelete('cascade');
+
+            $table->foreign('assigned_user_id')->references('id')->on('users')
+                ->onDelete('cascade');
+
+            $table->foreign('assigned_client_id')->references('id')->on('clients')
+                ->onDelete('cascade');
         });
     }
 
