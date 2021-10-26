@@ -7,6 +7,7 @@ use App\Models\Project;
 use App\Models\User;
 use Carbon\Carbon;
 use Exception;
+use Illuminate\Validation\UnauthorizedException;
 
 class ProjectService
 {
@@ -24,10 +25,32 @@ class ProjectService
         $this->assignedClient = Client::findOrFail($assignedClientId);
     }
 
-    public function createProject($deadline, string $title, string $description, string $status): array
+    /**
+     * Change the status of an Project
+     *
+     * @param string $status
+     * @return void
+     */
+    public function changeStatus(string $status, Project $project)
+    {
+        $this->validateStatus($status);
+
+        $project->status = $status;
+        $project->save();
+    }
+
+    public function changeDeadline($deadline, Project $project)
+    {
+        $this->validateDeadLine($deadline);
+
+        $project->deadline = $deadline;
+    }
+
+    public function createProject($deadline, string $title, string $description, string $status = 'open'): array
     {
         $this->validateDeadLine($deadline);
         $this->validateStatus($status);
+        $this->checkIfUserCanCreateProject();
 
         $project =  Project::create([
             'deadline' => $deadline,
@@ -40,6 +63,19 @@ class ProjectService
         ]);
         return $project->toArray();
     }
+
+    /**
+     * Check if user have permissions to create an project
+     * @throws UnauthorizedException
+     * @return void
+     */
+    private function checkIfUserCanCreateProject()
+    {
+        if (!$this->creatorUser->isAdmin()) {
+            throw new UnauthorizedException("Only admins can create a project");
+        }
+    }
+
 
     /**
      * Check if the deadline is greater than actual date
