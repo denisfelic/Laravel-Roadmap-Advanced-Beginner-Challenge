@@ -22,12 +22,32 @@ class Project extends Model
 
 
     /**
-     * Get the creatorUser that owns the Project
+     * Get the creator that owns the Project
      *
      * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
      */
-    public function creatorUser(): BelongsTo
+    public function creator(): BelongsTo
     {
-        return $this->belongsTo(User::class, 'foreign_key', 'other_key');
+        return $this->belongsTo(User::class, 'creator_user_id');
+    }
+
+    /**
+     * Get the user that owns the Project
+     *
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
+     */
+    public function user(): BelongsTo
+    {
+        return $this->belongsTo(User::class, 'assigned_user_id');
+    }
+
+    /**
+     * Get the client that owns the Project
+     *
+     * @return BelongsTo
+     */
+    public function client(): BelongsTo
+    {
+        return $this->belongsTo(Client::class, 'assigned_client_id');
     }
 }
