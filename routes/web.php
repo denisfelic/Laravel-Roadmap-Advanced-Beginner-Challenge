@@ -23,7 +23,7 @@ Route::prefix('/')->middleware(['auth'])->group(function () {
     })->name('dashboard');
 
     Route::resource('/client', ClientController::class);
-    Route::post('users/role', [UserController::class, 'change_role'])->name('users.change_role');
+    Route::post('users/role/{user}', [UserController::class, 'change_role'])->name('users.change_role');
     Route::resource('/users', UserController::class);
 });
 
