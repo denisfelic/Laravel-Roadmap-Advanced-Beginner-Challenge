@@ -3,12 +3,22 @@
 namespace App\Http\Controllers;
 
 use App\Models\User;
+use App\Services\UserService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Gate;
+use Throwable;
+use \Symfony\Component\HttpKernel\Exception\HttpExceptionInterface;
 
 class UserController extends Controller
 {
+
+    public  UserService $userService;
+
+    public function __construct()
+    {
+        $this->userService = new UserService();
+    }
     /**
      * Display a listing of the resource.
      *
@@ -16,29 +26,30 @@ class UserController extends Controller
      */
     public function index(User $user)
     {
-        if (!Gate::allows('access-users', $user)) {
+        if (!Gate::allows('access-users', Auth::user())) {
             return redirect('/', 302);
         }
     }
 
-    public function change_role(Request $request)
+    public function change_role(Request $request, User $user)
     {
         if (!Gate::allows('access-users', Auth::user())) {
             abort(403);
         }
 
         $request->validate([
-            'id' => 'required|integer',
-            'role' => 'required|string',
-
+            'role' => 'nullable|string',
         ]);
 
-
-        $user = User::findOrFail($request->id);
-        $user->role = $request->role;
-        $user->save();
-
-        return response('', 200);
+        try {
+            $this->userService->changeRole($user, $request->role);
+            return response(201);
+        } catch (HttpExceptionInterface $th) {
+            abort($th->getStatusCode());
+        } catch (\Throwable $th) {
+            dd($th->getMessage());
+            abort(500, $th->getMessage());
+        }
     }
 
     /**
@@ -51,7 +62,7 @@ class UserController extends Controller
         $user = Auth::user();
 
 
-        if (!Gate::allows('access-users', $user)) {
+        if (!Gate::allows('access-users', Auth::user())) {
             return redirect('/', 302);
         }
     }
@@ -75,7 +86,7 @@ class UserController extends Controller
      */
     public function show(User $user)
     {
-        if (!Gate::allows('access-users', $user)) {
+        if (!Gate::allows('access-users', Auth::user())) {
             return redirect('/', 302);
         }
     }
@@ -113,6 +124,19 @@ class UserController extends Controller
      */
     public function destroy(User $user)
     {
-        //
+        // TODO: Refactor to use Policies
+        if (!Gate::allows('access-users', Auth::user())) {
+            abort(403);
+        }
+
+        try {
+            $userData = $this->userService->deleteUser($user);
+            return response($userData, 200);
+        } catch (HttpExceptionInterface $th) {
+            //dd($th, $th->getCode());
+            abort($th->getStatusCode());
+        } catch (Throwable $th) {
+            abort(500);
+        }
     }
 }
