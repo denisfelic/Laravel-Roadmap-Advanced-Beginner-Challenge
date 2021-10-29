@@ -50,7 +50,6 @@ class ProjectService
     {
         $this->validateDeadLine($deadline);
         $this->validateStatus($status);
-        $this->checkIfUserCanCreateProject();
 
         $project =  Project::create([
             'deadline' => $deadline,
